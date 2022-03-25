@@ -14,16 +14,6 @@ Besides adding support for average cost basis this script can also generate file
 which are compatible with Skatteverket. There is either PDF output for printing and
 sending by mail or SRU-output which can be imported on skatteverket.se.
 
-## Supporting the development
-
-Please consider supporting the development of this tool by either using
-the referral link to [cointracking.info](https://cointracking.info?ref=D611015)
-or by donating to one of the adresses below. Using the referral link
-will give you a 10% discount if you decide to buy a Pro or Unlimited account.
-
-* BTC: `3KTLVpWjRGuJNBmjsKo4HGDG1G5SCesej3`
-* ETH: `0x05125B8E6598AbDDe21c7D01008a10F6107Ce004`
-
 ## How coins should be entered on [cointracking.info](https://cointracking.info?ref=D611015)
 
 * Trade: Trades fiat->crypto, crypto->crypto and crypto->fiat.
@@ -63,15 +53,6 @@ pasted in Övriga Upplysningar. Skatteverket limits the size of
 this field to 999 characters so it is best to combine this with
 doing a simplified K4 report to reduce the number of lines which
 has to be reported in the K4.
-
-## Liability
-
-I'm not taking any responsibility for that this tool will generate a
-correct tax report. I am using the tool for my own tax reporting though
-so making it correct is a priority to me. You will however have to
-take responsibility yourself for the tax report you send to
-Skatteverket, this means you should perform a sanity check of some sort
-on the generated K4 documents to make sure it looks reasonable.
 
 ## Setup
 
