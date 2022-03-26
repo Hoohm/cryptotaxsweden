@@ -20,17 +20,7 @@ skatteverket.se.
 
 ## Setup
 Python 3.6 is required.
-
-The following python packages are needed for pdf generation.
-
-* pdfrw
-* reportlab
-
-Python virtualenv can be setup using
-
 ```
-virtualenv venv -p python3.6
-. ./venv/bin/activate
 pip install -r requirements.txt
 ```
 
