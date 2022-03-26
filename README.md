@@ -14,7 +14,7 @@ skatteverket.se.
 * download cointracking tx data as comma-separated CVS https://cointracking.info/trade_prices.php
 * save as `data/trades.csv`
 * enter personal details in `data/personal_details.json`
-* run `python3 report.py --simplified-k4 --format sru 2021`
+* run `python report.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru`
 * test the generated sru files for errors at https://www.skatteverket.se/filoverforing
 * submit sru file to Skatteverket
 
