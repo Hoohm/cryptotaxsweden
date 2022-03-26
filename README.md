@@ -11,7 +11,7 @@ skatteverket.se.
 ## How to
 * download tx data: https://www.coinbase.com/reports
 * import tx data: https://cointracking.info/import/coinbase/
-* download cointracking tx data
+* download cointracking tx data as comma-separated CVS https://cointracking.info/trade_prices.php
 * save as `data/trades.csv`
 * enter personal details in `data/personal_details.json`
 * run `report.py --simplified-k4 --format sru 2021`
