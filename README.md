@@ -9,13 +9,13 @@ PDF output for printing and sending by mail or SRU-output which can be imported 
 skatteverket.se.
 
 ## How to
-* download tx data: https://www.coinbase.com/reports
-* import tx data: https://cointracking.info/import/coinbase/
-* download cointracking tx data as comma-separated CVS https://cointracking.info/trade_prices.php
+* download transaction data: https://www.coinbase.com/reports
+* import transaction data: https://cointracking.info/import/coinbase/
+* download cointracking transaction data as comma-separated CVS: https://cointracking.info/trade_prices.php
 * save as `data/trades.csv`
 * enter personal details in `data/personal_details.json`
 * run `python report.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru`
-* test the generated sru files for errors at https://www.skatteverket.se/filoverforing
+* test the generated sru files (in the out folder) for errors at https://www.skatteverket.se/filoverforing
 * submit sru file to Skatteverket
 
 ## Setup
@@ -93,37 +93,17 @@ optional arguments:
 ```
 
 ### Example
-
 #### Generate a simplified report for 2017 in sru format.
-
 ```
 python report.py 2017 --simplified-k4
 ```
 
-Generated sru files can be found in the ```out``` folder.
-
-Generated sru files can be tested for errors at [https://www.skatteverket.se/filoverforing]
-
 #### Generate a simplified report for 2017 in sru format with a rounding report with threshold of 1%.
-
 ```
 python report.py 2017 --simplified-k4 --rounding-report --rounding-report-threshold=1
 ```
 
-Generated sru files and the rounding report can be found in the ```out``` folder.
-
-Generated sru files can be tested for errors at [https://www.skatteverket.se/filoverforing]
-
-#### Generate report for 2017 in pdf format.
-
-```
-python report.py --format=pdf 2017
-```
-
-Generated pdf files can be found in the ```out``` folder.
-
 #### Merging the generated pdf files
-
 Merging the pdf files can be done with Ghostscript. It might make printing a bit easier.
 
 ```
