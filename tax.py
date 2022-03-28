@@ -1,12 +1,9 @@
 import os
-
 from taxdata import TaxEvent, Trade
 from k4page import K4Section, K4Page
 
-
 def is_fiat(coin):
     return coin in ["EUR", "USD", "SEK"]
-
 
 class Coin:
     def __init__(self, symbol, max_overdraft):
@@ -26,13 +23,9 @@ class Coin:
             raise Exception(f"Not enough coins available for {self.symbol}, {self.amount} < {amount}.")
         if amount_left < 0.0:
             amount_left = 0.0
-
         tax_event = TaxEvent(amount, self.symbol, price, self.cost_basis * amount)
-
         self.amount = amount_left
-
         return tax_event
-
 
 def compute_tax(trades, from_date, to_date, max_overdraft, native_currency='SEK', exclude_groups=[], coin_report_filename=None):
     tax_events = []
@@ -49,64 +42,67 @@ def compute_tax(trades, from_date, to_date, max_overdraft, native_currency='SEK'
         if trade.sell_coin == native_currency:
             return None
         if trade.sell_coin not in coins:
-            raise Exception(f"Selling currency {trade.sell_coin} which has not been bought yet")
+            raise Exception(f"ERROR: Selling currency {trade.sell_coin} which has not been bought yet")
         return coins[trade.sell_coin]
 
+    print('INFO: Parsing transactions...')
     for trade in trades.trades:
+        print(trade)
+        
         if trade.date > to_date:
             break
         elif trade.group in exclude_groups:
             continue
 
         try:
-
             if trade.type == 'Trade':
                 buy_coin = get_buy_coin(trade)
                 sell_coin = get_sell_coin(trade)
-
                 if trade.sell_coin == native_currency:
                     value_sek = trade.sell_value
                 else:
                     value_sek = trade.buy_value
-
                 if buy_coin:
                     buy_coin.buy(trade.buy_amount, value_sek)
                 if sell_coin:
                     tax_event = sell_coin.sell(trade.sell_amount, value_sek)
                     if trade.date >= from_date:
                         tax_events.append(tax_event)
-
+                        print('INFO: transaction registered as taxable event')
             elif trade.type == 'Mining':
                 buy_coin = get_buy_coin(trade)
                 if buy_coin:
                     buy_coin.buy(trade.buy_amount, trade.buy_value)
-
-            elif trade.type == 'Gift/Tip':
+            elif trade.type == 'Gift/Tip' or trade.type == 'Deposit':
                 buy_coin = get_buy_coin(trade)
                 if buy_coin:
                     buy_coin.buy(trade.buy_amount, 0.0)
-
-            elif trade.type == 'Spend':
+            elif trade.type == 'Spend' or trade.type == 'Withdrawal':
                 sell_coin = get_sell_coin(trade)
                 if sell_coin:
                     tax_event = sell_coin.sell(trade.sell_amount, trade.sell_value)
                     if trade.date >= from_date:
                         tax_events.append(tax_event)
+                        print('INFO: transaction registered as taxable event')
+            else:
+                raise Exception('trade type not supported')
 
         except Exception as e:
-            print(f"Exception encountered at line {trade.lineno} in trades csv-file: {e}")
+            print(f"ERROR: Exception encountered at line {trade.lineno} in trades csv-file: {e}")
             return None
+        print()
+    print('INFO: all transactions parsed successfully')
 
     if coin_report_filename:
         with open(coin_report_filename, "w") as f:
+            print(f'INFO: writing to {coin_report_filename}')
             f.write(f"{'Amount'.ljust(14)}{'Coin'.ljust(8)}{'Cost basis'.ljust(10)}\n")
             coin_list = [coin for (_, coin) in coins.items() if coin.amount > 1e-9]
             coin_list.sort(key=lambda coin: coin.symbol)
             for coin in coin_list:
                 f.write(f"{str(coin.amount)[:12].ljust(14)}{str(coin.symbol).ljust(8)}{str(coin.cost_basis)[:8].ljust(10)}\n")
-
+    
     return tax_events
-
 
 def aggregate_per_coin(tax_events):
     aggregate_tax_events = {}
@@ -133,9 +129,9 @@ def aggregate_per_coin(tax_events):
             new_tax_events.append(aggregate_loss_tax_event)
     return new_tax_events
 
-
 def rounding_report(tax_events, threshold, report_filename):
     with open(report_filename, 'w', encoding='utf-8') as f:
+        print(f'INFO: writing to {report_filename}')
         f.write(f"Decimaler stöds ej för bilaga K4 på skatteverket.se.\n")
         f.write(f"Här är en lista på avrundningar där det avrundade antalet skiljer sig mer än {str(threshold*100)[:4]}% från det egentliga antalet:\n")
         f.write(f"\n")
@@ -148,14 +144,12 @@ def rounding_report(tax_events, threshold, report_filename):
     if os.stat(report_filename).st_size > 999:
         raise Exception("Rounding report is longer than 999 characters (the limit on skatteverket.se), consider increasing the threshold --rounding-report-threshold and doing a simplified K4 --simplified-k4.")
 
-
 def convert_to_integer_amounts(tax_events):
     new_events = []
     for tax_event in tax_events:
         tax_event.amount = round(tax_event.amount)
         new_events.append(tax_event)
     return new_events
-
 
 def convert_to_integer_amounts_with_prefix(tax_events, precision_loss_tolerance=0.1):
     prefixes = [("", 1.0), ("milli", 1000.0), ("micro", 1000000.0)]
@@ -186,7 +180,6 @@ def convert_to_integer_amounts_with_prefix(tax_events, precision_loss_tolerance=
 
     return new_events
 
-
 def convert_sek_to_integer_amounts(tax_events):
     new_events = []
     for tax_event in tax_events:
@@ -194,7 +187,6 @@ def convert_sek_to_integer_amounts(tax_events):
         tax_event.cost = round(tax_event.cost)
         new_events.append(tax_event)
     return new_events
-
 
 def generate_k4_pages(year, personal_details, tax_events, stock_tax_events=None):
     def generate_section(events):
@@ -236,7 +228,6 @@ def generate_k4_pages(year, personal_details, tax_events, stock_tax_events=None)
         page_number += 1
     return pages
 
-
 def generate_k4_sru(pages, personal_details, destination_folder):
     # Generate info.sru
     lines = []
@@ -253,8 +244,9 @@ def generate_k4_sru(pages, personal_details, destination_folder):
     lines.append("")
 
     with open(os.path.join(destination_folder, "info.sru"), "w", encoding="iso-8859-1") as f:
+        print('INFO: writing to out\info.sru')
         f.write("\n".join(lines))
-
+        
     # Generate blanketter.sru
     lines = []
     for page in pages:
@@ -264,18 +256,18 @@ def generate_k4_sru(pages, personal_details, destination_folder):
     if not os.path.exists(destination_folder):
         os.makedirs(destination_folder)
     with open(os.path.join(destination_folder, "blanketter.sru"), "w", encoding="iso-8859-1") as f:
+        print('INFO: writing to out\\blanketter.sru')
         f.write("\n".join(lines))
-
 
 def generate_k4_pdf(pages, destination_folder):
     for page in pages:
         page.generate_pdf(destination_folder)
 
-
 def output_totals(tax_events, stock_tax_events = None):
     crypto_tax_events = [x for x in tax_events if not is_fiat(x.name)]
     fiat_tax_events = [x for x in tax_events if is_fiat(x.name)]
-
+    
+    print()
     if stock_tax_events:
         stock_total_profit = sum([x.profit() if x.profit() > 0 else 0 for x in stock_tax_events])
         stock_total_loss = sum([-x.profit() if x.profit() < 0 else 0 for x in stock_tax_events])

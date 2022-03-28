@@ -7,7 +7,6 @@ from enum import Enum
 from taxdata import PersonalDetails, Trades, TaxEvent
 import tax
 
-
 class Format(Enum):
     pdf = 'pdf'
     sru = 'sru'
@@ -47,7 +46,7 @@ tax_events = tax.compute_tax(trades,
                              coin_report_filename=os.path.join(opts.out, "coin_report.csv") if opts.coin_report else None
                              )
 if tax_events is None:
-    print(f"Aborting tax computation.")
+    print(f"WARNING: No tax events found")
     sys.exit(1)
 
 if opts.simplified_k4:

@@ -3,7 +3,6 @@ import dateutil.parser
 import csv
 import json
 
-
 class PersonalDetails:
     def __init__(self, namn, personnummer, postnummer, postort):
         self.namn = namn
@@ -17,7 +16,6 @@ class PersonalDetails:
             d = json.load(f)
             return PersonalDetails(d["namn"], d["personnummer"], d["postnummer"], d["postort"])
 
-
 class Fees:
     def __init__(self, fees):
         self.fees = fees
@@ -28,7 +26,6 @@ class Fees:
             d = json.load(f)
             return Fees(d["fees"])
 
-
 class Trade:
     def __init__(self, lineno, date:datetime, type, group,
                  buy_coin, buy_amount, buy_value,
@@ -37,13 +34,22 @@ class Trade:
         self.date = date
         self.type = type
         self.group = group
-        self.buy_coin = buy_coin
-        self.buy_amount = buy_amount
-        self.buy_value = buy_value
-        self.sell_coin = sell_coin
-        self.sell_amount = sell_amount
-        self.sell_value = sell_value
+        self.buy_coin = buy_coin # currency that is bought
+        self.buy_amount = buy_amount # amount that is bought
+        self.buy_value = buy_value # ?
+        self.sell_coin = sell_coin # currency used to buy
+        self.sell_amount = sell_amount # amount used to buy
+        self.sell_value = sell_value # ?
 
+    def __str__(self):
+        return '+-- Transaction ---------------------+\n' + \
+            '| date\t\t' + str(self.date).ljust(21) + '|\n' + \
+            '| type\t\t' + str(self.type).ljust(21) + '|\n' + \
+            '| sell curr.\t' + str(self.sell_coin).ljust(21) + '|\n' + \
+            '| sell amount\t' + str(self.sell_amount).ljust(21) + '|\n' + \
+            '| buy curr.\t' + str(self.buy_coin).ljust(21) + '|\n' + \
+            '| buy amount\t' + str(self.buy_amount).ljust(21) + '|\n' + \
+            '+------------------------------------+'
 
 def read_usdsek_rates():
     rates = []
@@ -59,7 +65,6 @@ def read_usdsek_rates():
     rates.sort(key=lambda rate: rate[0])
     return rates
 
-
 def usd_to_sek(rates, wanted_date):
     prev_date = None
     prev_price = None
@@ -71,7 +76,6 @@ def usd_to_sek(rates, wanted_date):
         prev_date = date
         prev_price = price
     raise Exception("Didn't find a USDSEK conversion rate for date %s" % wanted_date)
-
 
 class Trades:
     def __init__(self, trades):
@@ -115,6 +119,7 @@ class Trades:
                 None if line[sell_amount_index] == '-' else float(line[sell_amount_index]),
                 None if line[sell_value_index] == '-' else float(line[sell_value_index])
             )
+
             if value_in_usd:
                 usdsek_rate = usd_to_sek(usdsek, trade.date)
                 if trade.buy_value:
