@@ -1,0 +1,7 @@
+﻿Type,Buy,Cur.,Value in BTC,Value in SEK,Sell,Cur.,Value in BTC,Value in SEK,Spread,Exchange,Group,Date
+Trade,10,BTC,10,10000,10000,SEK,10,10000,0.00 %,Coinbase,-,01.01.2021 06:00
+Trade,10,BTC,10,50000,50000,SEK,10,50000,0.00 %,Coinbase,-,02.01.2021 06:00
+Trade,60000,SEK,15,60000,15,BTC,15,60000,0.00 %,Coinbase,-,03.01.2021 06:00
+Trade,5,BTC,5,25000,25000,SEK,10,25000,0.00 %,Coinbase,-,04.01.2021 06:00
+Trade,2000,SEK,0.345,2000,0.345,BTC,0.345,2000,0.00 %,Coinbase,-,05.01.2021 06:00
+Trade,15000,SEK,5,15000,5,BTC,5,15000,0.00 %,Coinbase,-,06.01.2021 06:00
