@@ -15,11 +15,12 @@ skatteverket.se.
 * save as `data/trades.csv`
 * enter personal details in `data/personal_details.json`
 * run `python report.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru`
+* check output for errors
 * test the generated sru files (in the out folder) for errors at https://www.skatteverket.se/filoverforing
 * submit sru file to Skatteverket
 
 ## Test
-You can use `data/trades_test.csv` to test the script. The file contains Skatteverkets own example (
+You can use `data/trades_test.csv` to test the script. The file contains Skatteverkets own example (found here:
 https://skatteverket.se/privat/skatter/vardepapper/andratillgangar/kryptovalutor.4.15532c7b1442f256bae11b60.html)
 * check that trades in the file corresponds to the example
 * run `python report.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru --trades="data/trades_test.csv" --coin-report`
