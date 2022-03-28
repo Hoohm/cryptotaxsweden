@@ -1,5 +1,4 @@
 # Swedish cryptocurrency tax reporting script
-
 ## About
 This is a tool to convert your cryptocurrency trade history to the K4 documents needed
 for tax reporting to Skatteverket.
@@ -33,16 +32,6 @@ Python 3.6 is required.
 pip install -r requirements.txt
 ```
 
-## Input data
-### data/personal_details.json
-Make sure to save the file in UTF-8 format. On Windows you can install Notepad++ to make this easier.
-
-### data/trades.csv
-To get the data for this file you first need to have your complete trade history
-on [cointracking.info](https://cointracking.info?ref=D611015). Then go to the
-Trade Prices-page and download a CSV report (comma separated version) from that
-page and store it at`data/trades.csv`.
-
 ## Limitations
 The sru format is currently limited in that it doesn't allow
 decimals, this is a limitation with skatteverket.se. The
@@ -58,7 +47,6 @@ has to be reported in the K4.
 
 ## Running
 ### Options
-
 ```
 usage: report.py [-h] [--trades TRADES] [--out OUT] [--format {pdf,sru}]
                  [--decimal-sru]
