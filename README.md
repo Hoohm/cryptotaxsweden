@@ -8,7 +8,7 @@ This script can generate files which are compatible with Skatteverket. There is 
 PDF output for printing and sending by mail or SRU-output which can be imported on 
 skatteverket.se.
 
-## How to
+## Usage
 * download transaction data: https://www.coinbase.com/reports
 * import transaction data: https://cointracking.info/import/coinbase/
 * download cointracking transaction data as comma-separated CVS: https://cointracking.info/trade_prices.php
@@ -17,6 +17,14 @@ skatteverket.se.
 * run `python report.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru`
 * test the generated sru files (in the out folder) for errors at https://www.skatteverket.se/filoverforing
 * submit sru file to Skatteverket
+
+## Test
+You can use `data/trades_test.csv` to test the script. The file contains Skatteverkets own example (
+https://skatteverket.se/privat/skatter/vardepapper/andratillgangar/kryptovalutor.4.15532c7b1442f256bae11b60.html)
+* check that trades in the file corresponds to the example
+* run `python report.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru --trades="data/trades_test.csv" --coin-report`
+* check that profit, loss, and tax in the output under Section D is correct
+* check that `out/coin_report.csv` has the correct cost basis ("omkostnadsbelopp")
 
 ## Setup
 Python 3.6 is required.
