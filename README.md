@@ -15,8 +15,8 @@ skatteverket.se.
 * enter personal details in `data/personal_details.json`
 * run `python report.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru`
 * check output for errors
-* test the generated sru files (in the out folder) for errors at https://www.skatteverket.se/filoverforing
-* submit sru file to Skatteverket
+* test the generated .sru files (in the out folder) for errors at https://www1.skatteverket.se/fv/fv_web/filval.do
+* submit blanketter.sru file to Skatteverket as a K4 attachment
 
 ## Test
 You can use `data/trades_test.csv` to test the script. The file contains Skatteverkets own example (found here:
