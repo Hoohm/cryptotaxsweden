@@ -7,30 +7,64 @@ This script can generate files which are compatible with Skatteverket. There is 
 PDF output for printing and sending by mail or SRU-output which can be imported on 
 skatteverket.se.
 
-## Usage
-* download transaction data: https://www.coinbase.com/reports
-* import transaction data: https://cointracking.info/import/coinbase/
-* download cointracking transaction data as comma-separated CVS: https://cointracking.info/trade_prices.php
-* save as `data/trades.csv`
-* enter personal details in `data/personal_details.json`
-* run `python report.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru`
-* check output for errors
-* test the generated .sru files (in the out folder) for errors at https://www1.skatteverket.se/fv/fv_web/filval.do
-* submit blanketter.sru file to Skatteverket as a K4 attachment
+## Requirements
+* a coinbase account where you have made all your transactions
+* a cointracking account (free)
+* git, python3, and pip installed on your computer
+
+## Setup
+1. Clone the repo
+```
+git clone https://github.com/lukasp2/cryptotaxsweden.git
+```
+2. Install requirements
+```
+pip install -r requirements.txt
+```
+
+## Usage - how to declare your crypto trades
+1. Download transaction data from here:
+```
+https://www.coinbase.com/reports
+```
+2. Log in to cointracking and import the transaction data from here:
+```
+https://cointracking.info/import/coinbase/
+```
+
+3. Download cointracking transaction data as comma-separated CVS from here:
+```
+https://cointracking.info/trade_prices.php
+```
+
+4. Save transaction data under the `data/` folder as `trades.csv`
+
+5. Enter your personal details in `data/personal_details.json`
+
+6. Run the following from root of repo, assuming you want to report for year 2022:
+```
+python report.py 2022 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru
+```
+
+7. Check output for errors and make sure everything looks good
+
+8. Test the generated .sru files (in the out folder) for errors here:
+```
+https://www1.skatteverket.se/fv/fv_web/filval.do
+```
+
+9. Submit blanketter.sru file to Skatteverket as a K4 attachment
 
 ## Test
 You can use `data/trades_test.csv` to test the script. The file contains Skatteverkets own example (found here:
 https://skatteverket.se/privat/skatter/vardepapper/andratillgangar/kryptovalutor.4.15532c7b1442f256bae11b60.html)
-* check that trades in the file corresponds to the example
-* run `python report.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru --trades="data/trades_test.csv" --coin-report`
-* check that profit, loss, and tax in the output under Section D is correct
-* check that `out/coin_report.csv` has the correct cost basis ("omkostnadsbelopp")
-
-## Setup
-Python 3.6 is required.
+1. check that trades in the file corresponds to the example
+2. run 
 ```
-pip install -r requirements.txt
+python report.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru --trades="data/trades_test.csv" --coin-report
 ```
+3. check that profit, loss, and tax in the output under Section D is correct
+4. check that `out/coin_report.csv` has the correct cost basis ("omkostnadsbelopp")
 
 ## Limitations
 The sru format is currently limited in that it doesn't allow
