@@ -43,7 +43,7 @@ https://cointracking.info/trade_prices.php
 
 6. Run the following from root of repo, assuming you want to report for year 2022:
 ```
-python report.py 2022 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru
+python main.py 2022 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru
 ```
 
 7. Check output for errors and make sure everything looks good
@@ -89,7 +89,7 @@ You can use `data/trades_test.csv` to test the script. The file contains the tra
 1. validate that the trades in the file corresponds to the example
 2. run 
 ```
-python report.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru --trades="data/trades_test.csv" --coin-report
+python main.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1 --format=sru --trades="data/trades_test.csv" --coin-report
 ```
 3. check that profit, loss, and tax in the output under Section D is correct
 4. check that `out/coin_report.csv` has the correct cost basis ("omkostnadsbelopp")
@@ -139,14 +139,14 @@ optional arguments:
 ```
 
 ### Example
-#### Generate a simplified report for 2017 in sru format.
+#### Generate a simplified report for 2021 in sru format.
 ```
-python report.py 2017 --simplified-k4
+python main.py 2021 --simplified-k4
 ```
 
-#### Generate a simplified report for 2017 in sru format with a rounding report with threshold of 1%.
+#### Generate a simplified report for 2021 in sru format with a rounding report with threshold of 1%.
 ```
-python report.py 2017 --simplified-k4 --rounding-report --rounding-report-threshold=1
+python main.py 2021 --simplified-k4 --rounding-report --rounding-report-threshold=1
 ```
 
 #### Merging the generated pdf files

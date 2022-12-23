@@ -1,12 +1,10 @@
 from datetime import datetime
 import os
 
-
 class K4Section:
     def __init__(self, lines, sums):
         self.lines = lines
         self.sums = sums
-
 
 class K4Page:
     def __init__(self, year, personal_details, page_number,
