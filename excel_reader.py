@@ -1,6 +1,5 @@
 import dateutil.parser
 import csv
-import json
 from datetime import datetime
 
 from trades import Trade, Trades
@@ -43,7 +42,7 @@ class ExcelReader:
             lines = [line for line in csv.reader(f, delimiter=',', quotechar='"')]
 
         if value_in_usd:
-            usdsek = read_usdsek_rates()
+            usdsek = self.__read_usdsek_rates()
 
         def indices(col_name):
             return [index for index, col in enumerate(lines[0]) if col == col_name]
@@ -77,7 +76,7 @@ class ExcelReader:
             )
 
             if value_in_usd:
-                usdsek_rate = usd_to_sek(usdsek, trade.date)
+                usdsek_rate = self.__usd_to_sek(usdsek, trade.date)
                 if trade.buy_value:
                     trade.buy_value *= usdsek_rate
                 if trade.sell_value:

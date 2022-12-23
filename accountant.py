@@ -2,7 +2,7 @@ import os
 import datetime
 
 from tax_event import TaxEvent
-from trades import Trades, Trade
+from trades import Trade
 from excel_reader import ExcelReader
 from coin import Coin
 from personal_details import PersonalDetails
@@ -54,8 +54,12 @@ class Accountant:
         from_date = datetime.datetime(year=self.cli_options.year,month=1,day=1,hour=0, minute=0)
         to_date = datetime.datetime(year=self.cli_options.year,month=12,day=31,hour=23, minute=59)
 
+        len_c = len(self.trades.trades)
+        self.trades.purge_anomalies()
+        len_d = len(self.trades.trades)
+
         len_a = len(self.trades.trades)
-        #self.trades.purge_duplicates()
+        self.trades.purge_duplicates()
         len_b = len(self.trades.trades)
 
         for trade in self.trades.trades:
@@ -112,12 +116,13 @@ class Accountant:
                 return None
 
         print("INFO: Purged", len_a - len_b, "duplicates in report.") if self.verbosity > 0 else None
+        print("INFO: Purged", len_c - len_d, "anomalies in report.") if self.verbosity > 0 else None
         print('INFO: Found', len(self.trades.trades), 'total transactions')  if self.verbosity > 0 else None
 
     def write_report(self):
         if self.tax_events is None:
             print(f"WARNING: No tax events found")
-            sys.exit(1)
+            exit(1)
 
         if self.cli_options.coin_report:
             self.report_writer.create_coin_report(self.coin_report_filename, self.wallet)

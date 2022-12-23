@@ -83,7 +83,7 @@ _The loss is tax deductible by 70 %. 5'000 * 0.70 = 3500 SEK._
 You can find the same example (but not as well explained) on Skatteverket website: \
 https://skatteverket.se/privat/skatter/vardepapper/andratillgangar/kryptovalutor.4.15532c7b1442f256bae11b60.html
 
-### Test
+## Test
 You can use `data/trades_test.csv` to test the script. The file contains the trades made in the example above.
 
 1. validate that the trades in the file corresponds to the example

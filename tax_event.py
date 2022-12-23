@@ -11,10 +11,10 @@ class TaxEvent:
     def headers():
         return ['Amount', 'Name', 'Income', 'Cost']
 
-    def fields(self) -> []:
+    def fields(self):
         return [self.amount, self.name, self.income, self.cost]
 
-    def k4_fields(self) -> []:
+    def k4_fields(self):
         return [self.amount, self.name, self.income, self.cost,
                 self.profit() if self.profit() > 0 else None,
                 -self.profit() if self.profit() < 0 else None]
