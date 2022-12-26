@@ -2,12 +2,12 @@ import dateutil.parser
 import csv
 from datetime import datetime
 
-from trades import Trade, Trades
+from trade import Trade
 
 # Reads and stores a list of the trades made in trades.csv
-class ExcelReader:
-    def __init__(self):
-        pass
+class TradeSheet:
+    def __init__(self, filename, value_in_usd):
+        self.trades = self.get_trades(filename, value_in_usd)
 
     # used by get_trades()
     def __read_usdsek_rates(self):
@@ -87,4 +87,62 @@ class ExcelReader:
         trades.reverse()
         trades.sort(key=lambda x: x.date)
 
-        return Trades(trades)
+        return trades
+
+    # remove 2s
+    def convert_2s(self):
+        count = 0
+        for trade in self.trades:
+            if trade.buy_coin_str and trade.buy_coin_str[-1] == '2':
+                trade.buy_coin_str = trade.buy_coin_str[:-1]
+                count += 1
+            if trade.sell_coin_str and trade.sell_coin_str[-1] == '2':
+                trade.sell_coin_str = trade.sell_coin_str[:-1]
+                count += 1
+        return count
+
+    # removes duplicate entries in the list
+    def purge_duplicates(self):
+        tmp_trades = []
+        for i in range(len(self.trades)):
+            # if next trade is equal to current, do not add current, otherwise do add.
+            if i + 1 < len(self.trades) and not self.trades[i].equal(self.trades[i+1]):
+                tmp_trades.append(self.trades[i])
+            # ... always add last trade
+            if i + 1 == len(self.trades):
+                tmp_trades.append(self.trades[i])
+        self.trades = tmp_trades
+
+    # returns list of duplicate trades
+    def get_duplicates(self):
+        duplicates = []
+        for i in range(len(self.trades)):
+            # if next trade is equal to current, count as duplicate
+            if i + 1 < len(self.trades) and self.trades[i].equal(self.trades[i+1]):
+                duplicates.append(self.trades[i])
+        return duplicates
+
+    def purge_anomalies(self):
+        tmp_trades = []
+        for trade in self.trades:
+            # keep trade if spread is < 40 % and > 0 % or undefined
+            if trade.sell_value != None and trade.buy_value != None:
+                spread = ((trade.sell_value - trade.buy_value) / trade.buy_value) * 100
+                if spread < 40 and spread > 0:
+                    tmp_trades.append(trade)
+            else:
+                tmp_trades.append(trade)
+        self.trades = tmp_trades
+
+    # returns list of trades where cost / spread is abnormal
+    def get_anomalies(self):
+        anomalies = []
+        for trade in self.trades:
+            # append if spread is > 40 % or < 0 %
+            if trade.sell_value != None and trade.buy_value != None:
+                spread = ((trade.sell_value - trade.buy_value) / trade.buy_value) * 100
+                if spread > 40 or spread < 0:
+                    anomalies.append(trade)
+            else:
+                anomalies.append(trade)
+        return anomalies

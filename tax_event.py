@@ -1,11 +1,12 @@
 import json
 
 class TaxEvent:
-    def __init__(self, amount, name:str, income, cost):
+    def __init__(self, amount, name:str, income, cost, date):
         self.amount = amount
         self.name = name
         self.income = income
         self.cost = cost
+        self.date = date
 
     @staticmethod
     def headers():

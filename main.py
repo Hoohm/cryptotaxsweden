@@ -1,7 +1,7 @@
 from cli import CommandLineInterface
 from accountant import Accountant
 
-# run cli and fetch options from user
+# fetch command line options from user
 cli = CommandLineInterface()
 cli.run()
 
