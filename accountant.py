@@ -24,20 +24,6 @@ class Accountant:
     def compute_tax(self):
         exclude_groups = self.cli_options.exclude_groups if self.cli_options.exclude_groups else []
 
-        len_e = 0
-        #len_e = self.tradesheet.convert_2s()
-        print("INFO: Converted", len_e, "XXX2 to XXX in report.")
-
-        len_c = len(self.tradesheet.trades)
-        #self.tradesheet.purge_anomalies()
-        len_d = len(self.tradesheet.trades)
-        print("INFO: Purged", len_c - len_d, "anomalies in report.")
-
-        len_a = len(self.tradesheet.trades)
-        #self.tradesheet.purge_duplicates()
-        len_b = len(self.tradesheet.trades)
-        print("INFO: Purged", len_a - len_b, "duplicates in report.")
-
         for trade in self.tradesheet.trades:
             if trade.date > self.to_date:
                 break
@@ -50,8 +36,9 @@ class Accountant:
                 print(f"ERROR: Exception for trade at line {trade.lineno} in trades.csv: {e}")
                 return None
 
-        print(f'INFO: Found {len(self.tradesheet.trades)} total transactions')
+        print(f'INFO: Parsed {len(self.tradesheet.trades)} total transactions')
         print(f'INFO: Printing wallet:\n{self.wallet}')
+        print()
 
     def write_report(self):
         if self.wallet.tax_events is None:

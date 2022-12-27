@@ -7,7 +7,7 @@ from trade import Trade
 # Reads and stores a list of the trades made in trades.csv
 class TradeSheet:
     def __init__(self, filename, value_in_usd):
-        self.trades = self.get_trades(filename, value_in_usd)
+        self.get_trades(filename, value_in_usd)
 
     # used by get_trades()
     def __read_usdsek_rates(self):
@@ -59,7 +59,7 @@ class TradeSheet:
         sell_amount_index = indices('Sell')[0]
         sell_value_index = indices(price_field_name)[1]
 
-        trades = []
+        self.trades = []
         lineno = 2
         for line in lines[1:]:
             trade = Trade(
@@ -81,68 +81,34 @@ class TradeSheet:
                     trade.buy_value *= usdsek_rate
                 if trade.sell_value:
                     trade.sell_value *= usdsek_rate
-            trades.append(trade)
+            self.trades.append(trade)
             lineno += 1
 
-        trades.reverse()
-        trades.sort(key=lambda x: x.date)
+        self.trades.reverse()
+        self.trades.sort(key=lambda x: x.date)
 
-        return trades
+        anomalies = self.get_anomalies()
+        if anomalies:
+            print("WARNING: Found anomalies in report, make sure input data is correct", anomalies)
 
-    # remove 2s
-    def convert_2s(self):
-        count = 0
-        for trade in self.trades:
-            if trade.buy_coin_str and trade.buy_coin_str[-1] == '2':
-                trade.buy_coin_str = trade.buy_coin_str[:-1]
-                count += 1
-            if trade.sell_coin_str and trade.sell_coin_str[-1] == '2':
-                trade.sell_coin_str = trade.sell_coin_str[:-1]
-                count += 1
-        return count
-
-    # removes duplicate entries in the list
-    def purge_duplicates(self):
-        tmp_trades = []
-        for i in range(len(self.trades)):
-            # if next trade is equal to current, do not add current, otherwise do add.
-            if i + 1 < len(self.trades) and not self.trades[i].equal(self.trades[i+1]):
-                tmp_trades.append(self.trades[i])
-            # ... always add last trade
-            if i + 1 == len(self.trades):
-                tmp_trades.append(self.trades[i])
-        self.trades = tmp_trades
+        duplicates = self.get_duplicates()
+        if duplicates:
+            print("WARNING: Found possible duplicates in report, make sure input data is correct", duplicates)
 
     # returns list of duplicate trades
     def get_duplicates(self):
         duplicates = []
         for i in range(len(self.trades)):
-            # if next trade is equal to current, count as duplicate
             if i + 1 < len(self.trades) and self.trades[i].equal(self.trades[i+1]):
                 duplicates.append(self.trades[i])
         return duplicates
 
-    def purge_anomalies(self):
-        tmp_trades = []
-        for trade in self.trades:
-            # keep trade if spread is < 40 % and > 0 % or undefined
-            if trade.sell_value != None and trade.buy_value != None:
-                spread = ((trade.sell_value - trade.buy_value) / trade.buy_value) * 100
-                if spread < 40 and spread > 0:
-                    tmp_trades.append(trade)
-            else:
-                tmp_trades.append(trade)
-        self.trades = tmp_trades
-
-    # returns list of trades where cost / spread is abnormal
+    # returns list of trades where cost / spread is > 40 % or < 0 %
     def get_anomalies(self):
         anomalies = []
         for trade in self.trades:
-            # append if spread is > 40 % or < 0 %
             if trade.sell_value != None and trade.buy_value != None:
-                spread = ((trade.sell_value - trade.buy_value) / trade.buy_value) * 100
-                if spread > 40 or spread < 0:
+                spread = ((trade.sell_value - trade.buy_value) / trade.buy_value)
+                if spread > 0.4 or spread < 0:
                     anomalies.append(trade)
-            else:
-                anomalies.append(trade)
         return anomalies

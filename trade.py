@@ -74,10 +74,6 @@ class Trade:
         else:
             raise Exception('Trade type not supported')
 
-
-    def get_spread_cost(self):
-        return self.sell_value - self.buy_value
-
     # used to identify duplicate trades
     def equal(self, other):
         same_date_and_type = self.date == other.date and self.type == other.type
