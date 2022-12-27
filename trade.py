@@ -1,4 +1,5 @@
 from datetime import datetime
+from wallets import Wallet, Wallets
 
 class Trade:
     def __init__(self, lineno, date:datetime, type, group,
@@ -28,51 +29,50 @@ class Trade:
         s += '+-----------------------------------------------+'
         return s
 
-    # performs this trade operation on a wallet
-    def perform(self, wallet):
+    # execute trade operation with wallets
+    def execute(self, wallets):
         if self.type == 'Trade':
-            print(self, '\n') if self.verbosity > 1 else None #and self.buy_coin_str[:3] == 'DOT' else None
-            buy_coin = wallet.get_buy_coin(self.buy_coin_str)
-            sell_coin = wallet.get_sell_coin(self.sell_coin_str)
+            buy_wallet = wallets.get_buy_wallet(self.buy_coin_str)
+            sell_wallet = wallets.get_sell_wallet(self.sell_coin_str)
 
-            if self.sell_coin_str == wallet.native_currency:
+            if self.sell_coin_str == wallets.native_currency:
                 value_sek = self.sell_value
             else:
                 value_sek = self.buy_value
 
-            if buy_coin:
-                buy_coin.buy(self.buy_amount, value_sek, self.date)
-            if sell_coin:
-                tax_event = sell_coin.sell(self.sell_amount, value_sek, self.date)
-                wallet.tax_events.append(tax_event)
+            if buy_wallet:
+                buy_wallet.buy(self.buy_amount, value_sek, self.date)
+            if sell_wallet:
+                tax_event = sell_wallet.sell(self.sell_amount, value_sek, self.date)
+                return tax_event
 
-            if not buy_coin and not sell_coin: # will happen if we trade fiat currencies
+            if not buy_wallet and not sell_wallet: # TODO: maybe not needed: will happen if we trade fiat currencies
                 raise Exception('Could not retreieve buy or sell coin for the trade')
 
         elif self.type == 'Spend' or self.type == 'Withdrawal':
-            print(self, '\n') if self.verbosity > 1 else None
-            sell_coin = wallet.get_sell_coin(self.sell_coin_str)
-            if sell_coin:
-                tax_event = sell_coin.sell(self.sell_amount, self.sell_value, self.date)
-                wallet.tax_events.append(tax_event)
+            sell_wallet = wallets.get_sell_wallet(self.sell_coin_str)
+            if sell_wallet:
+                tax_event = sell_wallet.sell(self.sell_amount, self.sell_value, self.date)
+                return tax_event
             else:
-                raise Exception('Could not retreieve sell coin for the trade')
+                raise Exception('Could not retreieve sell coin for the trade') # TODO: maybe not needed
 
         elif self.type == 'Mining' or self.type == 'Staking':
-            buy_coin = wallet.get_buy_coin(self.buy_coin_str)
-            if buy_coin:
-                buy_coin.buy(self.buy_amount, self.buy_value, self.date)
+            buy_wallet = wallets.get_buy_wallet(self.buy_coin_str)
+            if buy_wallet:
+                buy_wallet.buy(self.buy_amount, self.buy_value, self.date)
             else:
-                raise Exception('Could not retreieve buy coin for the trade')
+                raise Exception('Could not retreieve buy coin for the trade') # TODO: maybe not needed
 
         elif self.type == 'Gift/Tip' or self.type == 'Deposit':
-            buy_coin = wallet.get_buy_coin(self.buy_coin_str)
-            if buy_coin:
-                buy_coin.buy(self.buy_amount, 0.0, self.date)
+            buy_wallet = wallets.get_buy_wallet(self.buy_coin_str)
+            if buy_wallet:
+                buy_wallet.buy(self.buy_amount, 0.0, self.date)
             else:
-                raise Exception('Could not retreieve buy coin for the trade')
+                raise Exception('Could not retreieve buy coin for the trade') # TODO: maybe not needed
         else:
             raise Exception('Trade type not supported')
+        return None
 
     # used to identify duplicate trades
     def equal(self, other):

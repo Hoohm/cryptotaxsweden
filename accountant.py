@@ -2,46 +2,49 @@ import os
 import datetime
 
 from tax_event import TaxEvent
+from wallets import Wallet, Wallets
 from trade_sheet import TradeSheet
 from personal_details import PersonalDetails
-from wallet import Wallet
-from coin import Coin
 from k4page import K4Page, K4Section
 from format import Format
 
 class Accountant:
     def __init__(self, cli_options):
         self.cli_options = cli_options
-
-        self.wallet = Wallet(cli_options.max_overdraft)
+        self.wallets = Wallets(cli_options.max_overdraft, 'SEK')
         self.personal_details = PersonalDetails()
-        self.tradesheet = TradeSheet(self.cli_options.trades, self.cli_options.cointracking_usd)
-
-        # set tax timeperiod
-        self.from_date = datetime.datetime(year=self.cli_options.year,month=1,day=1,hour=0, minute=0)
-        self.to_date = datetime.datetime(year=self.cli_options.year,month=12,day=31,hour=23, minute=59)
+        self.tradesheet = TradeSheet(cli_options.trades, cli_options.cointracking_usd)
+        self.tax_events = []
 
     def compute_tax(self):
         exclude_groups = self.cli_options.exclude_groups if self.cli_options.exclude_groups else []
+        
+        # set tax timeperiod
+        from_date = datetime.datetime(year=self.cli_options.year,month=1,day=1,hour=0, minute=0)
+        to_date = datetime.datetime(year=self.cli_options.year,month=12,day=31,hour=23, minute=59)
 
         for trade in self.tradesheet.trades:
-            if trade.date > self.to_date:
+            if trade.date > to_date:
                 break
             if trade.group in exclude_groups:
                 continue
 
             try:
-                trade.perform(self.wallet)
+                # Execute trade with your wallets
+                tax_event = trade.execute(self.wallets)
+                if tax_event and tax_event.date >= from_date:
+                    self.tax_events.append(tax_event)
+
             except Exception as e:
                 print(f"ERROR: Exception for trade at line {trade.lineno} in trades.csv: {e}")
                 return None
 
         print(f'INFO: Parsed {len(self.tradesheet.trades)} total transactions')
-        print(f'INFO: Printing wallet:\n{self.wallet}')
+        print(f'INFO: Printing wallet:\n{self.wallets}')
         print()
 
     def write_report(self):
-        if self.wallet.tax_events is None:
+        if self.tax_events is None:
             print(f"WARNING: No tax events found")
 
         if self.cli_options.coin_report:
@@ -52,7 +55,7 @@ class Accountant:
     # used by create_k4_report() if self.cli_options.simplified_k4
     def __aggregate_per_coin(self):
         aggregate_tax_events = {}
-        for tax_event in self.wallet.tax_events:
+        for tax_event in self.tax_events:
             if tax_event.name not in aggregate_tax_events:
                 aggregate_tax_events[tax_event.name] = (TaxEvent(0.0, tax_event.name, 0.0, 0.0, tax_event.date), TaxEvent(0.0, tax_event.name, 0.0, 0.0, tax_event.date))
             (aggregate_profit_tax_event, aggregate_loss_tax_event) = aggregate_tax_events[tax_event.name]
@@ -74,7 +77,7 @@ class Accountant:
             if (aggregate_loss_tax_event.amount > 0.0):
                 new_tax_events.append(aggregate_loss_tax_event)
 
-        self.wallet.tax_events = new_tax_events
+        self.tax_events = new_tax_events
 
     # used by create_k4_report()
     def __rounding_report(self):
@@ -86,7 +89,7 @@ class Accountant:
             f.write(f"Decimaler stöds ej för bilaga K4 på skatteverket.se.\n")
             f.write(f"Här är en lista på avrundningar där det avrundade antalet skiljer sig mer än {str(threshold*100)[:4]}% från det egentliga antalet:\n")
             f.write(f"\n")
-            for tax_event in self.wallet.tax_events:
+            for tax_event in self.tax_events:
                 original = tax_event.amount
                 rounded = round(tax_event.amount)
                 if abs(rounded - original) / original > threshold:
@@ -98,10 +101,10 @@ class Accountant:
     # used by create_k4_report()
     def __convert_to_integer_amounts(self):
         new_events = []
-        for tax_event in self.wallet.tax_events:
+        for tax_event in self.tax_events:
             tax_event.amount = round(tax_event.amount)
             new_events.append(tax_event)
-        self.wallet.tax_events = new_events
+        self.tax_events = new_events
 
     # used by create_k4_report()
     def __convert_to_integer_amounts_with_prefix(self, precision_loss_tolerance=0.1):
@@ -109,12 +112,12 @@ class Accountant:
 
         # Check which coins need to be modified to not lose to much precision.
         coin_prefixes = {}
-        coins = set([x.name for x in self.wallet.tax_events])
+        coins = set([x.name for x in self.tax_events])
         for coin in coins:
-            if not Coin.is_fiat(coin):
+            if not Wallet.is_fiat(coin):
                 for (prefix, factor) in prefixes:
                     loss = max([abs(round(factor*x.amount) - factor*x.amount) / (factor*x.amount)
-                                for x in self.wallet.tax_events if x.name == coin])
+                                for x in self.tax_events if x.name == coin])
                     if loss < precision_loss_tolerance:
                         break
                 else:
@@ -123,7 +126,7 @@ class Accountant:
 
         # Convert amount to integer
         new_events = []
-        for tax_event in self.wallet.tax_events:
+        for tax_event in self.tax_events:
             if tax_event.name in coin_prefixes:
                 tax_event.amount = round(coin_prefixes[tax_event.name][1] * tax_event.amount)
                 tax_event.name = f"{coin_prefixes[tax_event.name][0]}{tax_event.name}"
@@ -131,16 +134,16 @@ class Accountant:
                 tax_event.amount = round(tax_event.amount)
             new_events.append(tax_event)
 
-        self.wallet.tax_events = new_events
+        self.tax_events = new_events
 
     # used by create_k4_report()
     def __convert_sek_to_integer_amounts(self):
         new_events = []
-        for tax_event in self.wallet.tax_events:
+        for tax_event in self.tax_events:
             tax_event.income = round(tax_event.income)
             tax_event.cost = round(tax_event.cost)
             new_events.append(tax_event)
-        self.wallet.tax_events = new_events
+        self.tax_events = new_events
 
     # used by create_k4_report()
     def __generate_k4_pages(self):
@@ -161,8 +164,8 @@ class Accountant:
             sums = [str(sum) if sum > 0 else None for sum in num_sums]
             return K4Section(lines, sums)
 
-        fiat_events = [x for x in self.wallet.tax_events if Coin.is_fiat(x.name)]
-        crypto_events = [x for x in self.wallet.tax_events if not Coin.is_fiat(x.name)]
+        fiat_events = [x for x in self.tax_events if Wallet.is_fiat(x.name)]
+        crypto_events = [x for x in self.tax_events if not Wallet.is_fiat(x.name)]
 
         pages = []
         page_number = 1
@@ -224,8 +227,8 @@ class Accountant:
 
     # used by create_k4_report()
     def __output_totals(self):
-        crypto_tax_events = [x for x in self.wallet.tax_events if not Coin.is_fiat(x.name)]
-        fiat_tax_events = [x for x in self.wallet.tax_events if Coin.is_fiat(x.name)]
+        crypto_tax_events = [x for x in self.tax_events if not Wallet.is_fiat(x.name)]
+        fiat_tax_events = [x for x in self.tax_events if Wallet.is_fiat(x.name)]
         
         print()
         if self.stock_tax_events:
@@ -253,16 +256,14 @@ class Accountant:
         with open(coin_report_filename, "w") as f:
             print(f'INFO: writing to {coin_report_filename}')
             f.write(f"{'Amount'.ljust(14)}{'Coin'.ljust(8)}{'Cost basis'.ljust(10)}\n")
-            coin_list = [coin for (_, coin) in self.wallet.coins.items() if coin.amount > 1e-9]
-            coin_list.sort(key=lambda coin: coin.symbol)
-            for coin in coin_list:
-                f.write(f"{str(coin.amount)[:12].ljust(14)}{str(coin.symbol).ljust(8)}{str(coin.cost_basis)[:8].ljust(10)}\n")
+            wallets = [w for (_, w) in self.wallets.wallets.items() if w.amount > 1e-9]
+            wallets.sort(key=lambda w: w.symbol)
+            for w in wallets:
+                f.write(f"{str(w.amount)[:12].ljust(14)}{str(w.symbol).ljust(8)}{str(w.cost_basis)[:8].ljust(10)}\n")
 
     # creates a K4 report
     # called by Accountant::write_report()
     def create_k4_report(self):
-        self.wallet.tax_events = filter(lambda tax_event: tax_event.date >= self.from_date, self.wallet.tax_events)
-
         if self.cli_options.simplified_k4:
             self.__aggregate_per_coin()
 
