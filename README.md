@@ -23,7 +23,7 @@ pip install -r requirements.txt
 ```
 
 ## Usage - how to declare your crypto trades
-1. Download transaction data from here:
+1. Download transaction data as a CSV report from here:
 ```
 https://www.coinbase.com/reports
 ```
