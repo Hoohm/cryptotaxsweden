@@ -50,7 +50,7 @@ python main.py 2022 --simplified-k4 --rounding-report --rounding-report-threshol
 
 8. Test the generated .sru files (in the out folder) for errors here:
 ```
-https://www1.skatteverket.se/fv/fv_web/filval.do
+https://www1.skatteverket.se/fv/fv_web/systemval.do
 ```
 
 9. Import blanketter.sru file to Skatteverket as a K4 attachment here:
