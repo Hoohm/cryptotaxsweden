@@ -53,7 +53,10 @@ python main.py 2022 --simplified-k4 --rounding-report --rounding-report-threshol
 https://www1.skatteverket.se/fv/fv_web/filval.do
 ```
 
-9. Submit blanketter.sru file to Skatteverket as a K4 attachment
+9. Import blanketter.sru file to Skatteverket as a K4 attachment here:
+```
+https://sso.skatteverket.se/ef/ef_webapp/importk4.do
+```
 
 ## Understanding the Swedish crypto tax law
 Here is an explaination of how the tax rules is applied to a series of purchases and sales of BTC.
