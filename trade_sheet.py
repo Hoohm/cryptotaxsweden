@@ -89,11 +89,13 @@ class TradeSheet:
 
         anomalies = self.get_anomalies()
         if anomalies:
-            print("WARNING: Found anomalies in report, make sure input data is correct", anomalies)
+            print("WARNING: Found anomalies in report, see below. Make sure input data is correct.")
+            [ print(anomaly) for anomaly in anomalies ]
 
         duplicates = self.get_duplicates()
         if duplicates:
-            print("WARNING: Found possible duplicates in report, make sure input data is correct", duplicates)
+            print("WARNING: Found possible duplicates in report, see below. Make sure input data is correct.")
+            [ print(duplicate) for duplicate in duplicates ]
 
     # returns list of duplicate trades
     def get_duplicates(self):
