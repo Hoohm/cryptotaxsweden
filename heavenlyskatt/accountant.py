@@ -1,18 +1,18 @@
 import os 
 import datetime
 
-from tax_event import TaxEvent
-from wallets import Wallet, Wallets
-from trade_sheet import TradeSheet
-from personal_details import PersonalDetails
-from k4page import K4Page, K4Section
-from format import Format
+from heavenlyskatt.tax_event import TaxEvent
+from heavenlyskatt.wallets import Wallet, Wallets
+from heavenlyskatt.trade_sheet import TradeSheet
+from heavenlyskatt.personal_details import PersonalDetails
+from heavenlyskatt.k4page import K4Page, K4Section
+from heavenlyskatt.format import Format
 
 class Accountant:
     def __init__(self, cli_options):
         self.cli_options = cli_options
         self.wallets = Wallets(cli_options.max_overdraft, 'SEK')
-        self.personal_details = PersonalDetails()
+        self.personal_details = PersonalDetails(cli_options.info)
         self.tradesheet = TradeSheet(cli_options.trades, cli_options.cointracking_usd)
         self.tax_events = []
 

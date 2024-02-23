@@ -1,8 +1,8 @@
-import dateutil.parser
+from dateutil.parser import parse
 import csv
 from datetime import datetime
 
-from trade import Trade
+from heavenlyskatt.trade import Trade
 
 # Reads and stores a list of the trades made in trades.csv
 class TradeSheet:
@@ -18,7 +18,7 @@ class TradeSheet:
                 if is_first:
                     is_first = False
                     continue
-                date = dateutil.parser.parse(row[0])
+                date = parse(row[0])
                 close = float(row[1])
                 rates.append([date, close])
         rates.sort(key=lambda rate: rate[0])

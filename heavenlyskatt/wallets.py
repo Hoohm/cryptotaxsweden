@@ -1,4 +1,4 @@
-from tax_event import TaxEvent
+from heavenlyskatt.tax_event import TaxEvent
 
 class Wallets:
     wallets = {}

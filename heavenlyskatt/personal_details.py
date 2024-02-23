@@ -1,8 +1,8 @@
 import json
 
 class PersonalDetails:
-    def __init__(self):
-        filename = "data/personal_details.json"
+    def __init__(self, json_path):
+        filename = json_path
 
         with open(filename, encoding="utf-8-sig") as f:
             d = json.load(f)

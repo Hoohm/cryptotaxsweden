@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from format import Format
+from heavenlyskatt.format import Format
 
 class CommandLineInterface:
     def __init__(self):
@@ -11,7 +11,8 @@ class CommandLineInterface:
         parser = argparse.ArgumentParser(description='Swedish cryptocurrency tax reporting script')
         parser.add_argument('year', type=int,
                             help='Tax year to create report for')
-        parser.add_argument('--trades', help='Read trades from csv file', default='data/trades.csv')
+        parser.add_argument('--trades', help='Read trades from csv file')
+        parser.add_argument('--info', help='Read personnal info from json')
         parser.add_argument('--out', help='Output folder', default='out')
         parser.add_argument('--format', type=Format, choices=list(Format), default=Format.sru,
                             help='The file format of the generated report')

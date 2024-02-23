@@ -1,5 +1,5 @@
 from datetime import datetime
-from wallets import Wallet, Wallets
+from heavenlyskatt.wallets import Wallet, Wallets
 
 class Trade:
     def __init__(self, lineno, date:datetime, type, group,
